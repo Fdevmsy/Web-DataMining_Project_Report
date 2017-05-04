@@ -6,7 +6,7 @@ Image classification problem is the task of assigning an input image one label f
 
 ####  Challenges:  
 Traditional way: Feature Description and Detection. 
-![](1.png)
+![](3.png)
 Maybe good for some sample task, but the actual situation is far more complicated. 
 ![](2.png)
 
@@ -26,7 +26,7 @@ The Oxford-IIIT Pet Dataset: [link](http://www.robots.ox.ac.uk/~vgg/data/pets/)
 There are 25 breeds of dog and 12 breeds of cat. Each breed has 200 images. 
 
 We only used 10 cat breeds in our project. 
-![](3.png)
+![](1.png)
 
 
 
