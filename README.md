@@ -31,21 +31,32 @@ Our Objective is to:
 
 The 5 methods we used in this project are KNN, SVM, BP Neural Network, Convolutional Neural Network and Transfer Learning. 
 
-The whole project is divided into 3 parts. 
+The whole project is divided into 3 methods. 
 
-- **The first part**: Used **KNN, SVM and BP Neural Network**, which are algorithms we learnt in class. There are powerful and easy to implement. We mainly used **sklearn** to implement those algorithms. 
+- **The first method**: Used **KNN, SVM and BP Neural Network**, which are algorithms we learnt in class. There are powerful and easy to implement. We mainly used **sklearn** to implement those algorithms. 
 
-- **The second part**: While traditional multilayer perceptron (MLP) models were successfully used for image recognition, due to the full connectivity between nodes they suffer from the curse of dimensionality and thus do not scale well to higher resolution images. So in this part we built a **CNN** using deep learning frame work by Google - **TensorFlow**.  
+- **The second method**: While traditional multilayer perceptron (MLP) models were successfully used for image recognition, due to the full connectivity between nodes they suffer from the curse of dimensionality and thus do not scale well to higher resolution images. So in this part we built a **CNN** using deep learning frame work by Google - **TensorFlow**.  
 
--  **The third part**: Retrained the last layer of a pretrained deep neural network called **Inception V3**, also provided by **TensorFlow**. 
+-  **The third method**: Retrained the last layer of a pretrained deep neural network called **Inception V3**, also provided by **TensorFlow**. 
 Inception V3 is trained for the ImageNet Large Visual Recognition Challenge using the data from 2012. This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like "Zebra", "Dalmatian", and "Dishwasher". In order to retrain this pretrained network, we need to ensure that our own dataset is not already pretrained.
 
 
 ### Implementation
 
-- **The first part:** 
+- **The first method:** **Preprocess dataset and apply KNN, SVM and BP Neural Network with sklearn.**
 
-- **The second part**:  **Built CNN with TensorFlow**
+	Firstly, we defined 2 different preprocessing functions using openCV package:The first one is called image to feature vector, to resize the image and then flatten the image into a list of row pixel. The second one is called extract color histogram, to extract a 3D color histogram from the HSV color spacing using cv2.normalize and then flatten the result.
+	
+	Then, we construct several arguments we need to parse. Because we want to test the accuracy on this part not only for the whole dataset but also the sub-dataset with different number of labels, we construct the dataset as a arguments parsed into our program. And we also construct the number of neighbors used for k-NN method as a parse argument.
+	
+	After that, we began to extract each image features in the dataset and put them into arrays. We used the cv2.imread to read each image, split the label out by extract the string from the image name. In our dataset, we set the name with the same format: “class label”.”image number”.jpg, so we can easily extract the class label for each image. Then we used those 2 functions we defined before to extract 2 kinds of features and append to the array rawImages and features, and the label we extracted earlier append to the array labels.
+	
+	The next step is to split the dataset with the function train_test_split, imported from sklearn package. The set with postfix RI,RL is the split result of the rawImages and labels pair, and another is the split result of the features and labels pair. We use 85% of the dataset as train set, and 15% as the test set.
+	
+	Finally we applied the KNN, SVM and BP Neural Network functions to evaluate the data. For KNN we used KNeighborsClassifier, for SVM we used SVC, and for BP neural network we used MLPClassifier.
+
+
+- **The second method**:  **Built CNN with TensorFlow**
 The entire purpose of TensorFlow is to let you build a computational graph (using any languages like Python) and then execute the graph in C++, which is much more efficiently than if the same calculations were to be performed directly in Python. 
 
 	TensorFlow can also automatically calculate the gradients that are needed to optimize the variables of the graph so as to make the model perform better. This is because the graph is a combination of simple mathematical expressions so the gradient of the entire graph can be calculated using the chain-rule for derivatives.
@@ -103,7 +114,18 @@ The entire purpose of TensorFlow is to let you build a computational graph (usin
 	The **Cost function**  we used here is **cross entropy** (called from tf.nn.oftmax_cross_entropy_with_logits()), and take the average of cross-entropy for all the image classifications. 
 	The **Optimization Method** is tf.train.AdamOptimizer() which is an advanced form of **Gradient Descent.** The is a parameter **learning rate** which could be adjusted. 
 	
+- **The third method**: **Retrain Inception V3**
+	Modern object recognition models have millions of parameters and can take weeks to fully train. Transfer learning is a technique that shortcuts a lot of this work by taking a fully-trained model for a set of categories like ImageNet, and retrains from the existing weights for new classes. Though it's not as good as a full training run, this is surprisingly effective for many applications, and can be run in as little as thirty minutes on a laptop, without requiring a GPU. 
+	For this part of implementation, we followed the instruction here: [link](https://www.tensorflow.org/tutorials/image_retraining). 
 	
+	First we need to get the pretrained model, remove the old top layer, and trains a new one on the dataset we have. None of the cat breeds were in the original ImageNet classes the full network was trained on. The magic of transfer learning is that lower layers that have been trained to distinguish between some objects can be reused for many recognition tasks without any alteration.
+	Then we analyzes all the images on disk and calculates the bottleneck values for each of them. See details about 'bottleneck' here: [link](https://www.tensorflow.org/tutorials/image_retraining). Because every image is reused multiple times during training and calculating each bottleneck takes a significant amount of time, it speeds things up to cache these bottleneck values on disk so they don't have to be repeatedly recalculated.
+	
+	The script will run 4,000 training steps. Each step chooses ten images at random from the training set, finds their bottlenecks from the cache, and feeds them into the final layer to get predictions. Those predictions are then compared against the actual labels to update the final layer's weights through the back-propagation process.
+	
+
+
+
 ## Experiments 
 
 ### Dataset
@@ -123,12 +145,32 @@ The sizes are different with each other. But we resized them into fixed sizes li
 
 In this project we mainly used OpenCV for precessing the image data like read the image into arrary and reshape into the size we need. 
 
-In our learning progress, we find many different ways to preprocess image data, like random cropping, flipping, inverting, sharpen, greyscale. See links here: [https://github.com/aleju/imgaug](https://github.com/aleju/imgaug). However we don't have enough time to test on those techniques. 
+A common way of improving the results of image training is by deforming, cropping, or brightening the training inputs in random ways. This has the advantage of expanding the effective size of the training data thanks to all the possible variations of the same images, and tends to help the network learn to cope with all the distortions that will occur in real-life uses of the classifier. 
+
+
+![](4.png)
+
+See links here: [https://github.com/aleju/imgaug](https://github.com/aleju/imgaug). 
 
 ### Evalutaion
-- **The first part:** 
+- **The first method:** 
+	The first part: Preprocess dataset and apply KNN, SVM and BP Neural Network with sklearn.
+	
+	In the program, there are many parameters could be adjusted:
+In image_to_featrue_vector function, we set the size we desired is 128x128, we do have tried other size before like 8x8, 64x64, 256x256. We found that the bigger image size, the better the accuracy. But large image size also increase the execution time and memory it consumed. So we finally decided the image size to be 128x128 because its not too big but can also ensure the accuracy.
 
-- **The second part**:  **Built CNN with TensorFlow**
+	In extract_color_histogram function, we set the number of bins per channel to 32, 32, 32. As the previous function, we tried 8, 8, 8, and 64, 64, 64, and higher number can result to higher result, as well as higher execution time. So we think 32, 32, 32 is appropriate.
+	
+	For the dataset, we tried 3 kinds of datasets. The first one is the sub-dataset with 400 images, 2 labels. The second one is the sub-dataset with 1000 images, 5 labels. And the last one is the whole dataset with 1997 images, 10 labels. And we parsed the different dataset as arguments in the program.
+	
+	In **KNeighborsClassifier**, we only changed the number of neighbors and stored the result for the best K for each dataset. All the other parameters we set as default.
+	
+	In **MLPClassifier**, we set one hidden layer with 50 neurons. We do have tested multiple hidden layers, but it seems has no significant change in the final result. And the maximum iteration time is 1000, with tolerance 1e-4, in order to make sure it converged. And set L2 panalty parameter alpha to default value, random state to 1, solver to ‘sgd’ with learning rate 0.1.
+In SVC, maximum iteration time is 1000, and class weight is ‘balanced’.
+ 
+	The **running time** for our program is not very long, it takes about 3 to 5 minutes from 2 labels dataset to 10 labels dataset.
+	
+- **The second method**:  **Built CNN with TensorFlow**
 
 	It takes a long time to calculate the gradient of the model using the entirety of a large dataset . We therefore only use a small batch of images in each iteration of the optimizer. The batch size is normaly 32 or 64. 
 	The dataset is divided into training set contains 1600 images, validation set contains 400 images, and test set contains 300 images.  
@@ -145,8 +187,48 @@ We choosed 1 x 10^-4.
 	
 	As a result, we roughly achieved 65% accuracy after 10000 iterations, and the running time is over an hour. 
 
+- **The third method**: **Retrain Inception V3**
+	Same here, we randomly select a few images to train and select another batch a images for validation.  
+	
+	There are many parameters could be adjusted.
+	
+	First is **training steps**, the defalut is 4000, we can try more or try a smaller one if we could get a reasonable result earlier. 
+	
+	The --**learning rate** controls the magnitude of the updates to the final layer during training. Intuitively if this is smaller then the learning will take longer, but it can end up helping the overall precision. The --**train batch **size controls how many images are examined during one training step, and because the learning rate is applied per batch we'll need to reduce it if you have larger batches to get the same overall effect.
+	
+	Since for deep learning task, the running time is usually pretty long, we won't hope to know our model is actually bad after hours of training. So we **report validation accuracy frequently**. By this way we can also avoid **overfitting**. The split is putting 80% of the images into the main training set, keeping 10% aside to run as validation frequently during training, and then have a final 10% that are used less often as a testing set to predict the real-world performance of the classifier.
+
+
+
+## Result 
+
+- **The first method:** **Preprocess dataset and apply KNN, SVM and BP Neural Network with sklearn.**
+
+	The results are in the following chart. Because the SVM result is very bad, even below the random guessing (1/ # of labels), we did not provide the result of that.
+
+	![](5.png)
+	
+	From the result we can see: 
+	
+	- In k-NN, the raw pixel accuracy and histogram accuracy are relatively same. In 5 labels sub-dataset the histogram accuracy is a little bit higher than raw pixel, but over all, the raw pixel shows better result.
+	
+	- In the neural network MLP classifier, the raw pixel accuracy is much lower than histogram accuracy. For the whole dataset(10 labels), the raw pixel accuracy even lower than random guessing.
+	
+	- All these 2 sklearn methods do not give very good performance, the accuracy for recognizing the right category is only about 24% in the whole dataset (10 labels dataset).
+	These results reveal that using sklearn methods for image recognition are not good enough. They are not able to give good performance for the complex images with many categories. But when comparing to the random guessing, they do have made some improvement, but not enough.
+
+	Based on the results, we found that in order to improve the accuracy, its necessary to use some deep learning method.
+	
+	
+- **The third method**: **Retrain Inception V3**
+
+	![](7.png)
+	
+	The whole training progress takes no more than 10 mins. And we got extremely good results. We can actually see the power of deep learning and transfer learning. 
+	
+	Demo: ![](8.png)
+	
 	 
-
-
+## Conclusion
 
 
