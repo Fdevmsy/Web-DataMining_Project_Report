@@ -20,8 +20,8 @@ So we would like to compare the performance among the algorithms we learnt in cl
 	
 Our Objective is to: 
 	
-1. Compare normal algorithms we learnt in class with other methods that are usually used in industry on image classification problem .
-2. Find a fast and acurate method that could run on a common laptop or smartphone. 
+1. Compare normal algorithms we learnt in class with 2 other methods that are usually used in industry on image classification problem, which are CNN and Transfer Learning. 
+2. Gain experience on deep learning. 
 3. Explore the machine learning framework by Google - TensorFlow. 
 
 
@@ -37,8 +37,8 @@ The whole project is divided into 3 methods.
 
 - **The second method**: While traditional multilayer perceptron (MLP) models were successfully used for image recognition, due to the full connectivity between nodes they suffer from the curse of dimensionality and thus do not scale well to higher resolution images. So in this part we built a **CNN** using deep learning frame work by Google - **TensorFlow**.  
 
--  **The third method**: Retrained the last layer of a pretrained deep neural network called **Inception V3**, also provided by **TensorFlow**. 
-Inception V3 is trained for the ImageNet Large Visual Recognition Challenge using the data from 2012. This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like "Zebra", "Dalmatian", and "Dishwasher". In order to retrain this pretrained network, we need to ensure that our own dataset is not already pretrained.
+-  **The third method**: Retrained the last layer of a pre-trained deep neural network called **Inception V3**, also provided by **TensorFlow**. 
+Inception V3 is trained for the ImageNet Large Visual Recognition Challenge using the data from 2012. This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like "Zebra", "Dalmatian", and "Dishwasher". In order to retrain this pre-trained network, we need to ensure that our own dataset is not already pretrained.
 
 
 ### Implementation
@@ -91,23 +91,6 @@ The entire purpose of TensorFlow is to let you build a computational graph (usin
 	
 	However to connect Convolutional layers and Fully-Connected Layers we need a **Flatten Layer** to reduce the 4-dim tensor to 2-dim which can be used as input to the fully-connected layer. 
 	
-	The shape of every layer is here. 
-		
-		# Convolutional Layer 1.
-		filter_size1 = 5 
-		num_filters1 = 32
-		
-		# Convolutional Layer 2.
-		filter_size2 = 5
-		num_filters2 = 64
-		
-		# Convolutional Layer 3.
-		filter_size3 = 3
-		num_filters3 = 64
-		
-		# Fully-connected layer.
-		fc_size = 128             	
-
 	The very end of CNN is always a **softmax layer** which normalize the output from Fully-connected layer so that each element is limited between 0 and 1 and all the elements sum to 1.
 	
 	To **optimize** the traning result we need a cost mearsure and try to minmize it every iternation. 
@@ -137,7 +120,7 @@ We only used 10 cat breeds in our project.
 ![](1.png)
 
 The classes we used here is 
- ['Sphynx','Siamese','Ragdoll','Persian','Maine_Coon','British_shorthair','Bombay','Birman','Bengal','Abyssinian']
+ ['Sphynx','Siamese','Ragdoll','Persian','Maine-Coon','British-shorthair','Bombay','Birman','Bengal','Abyssinian']
 
 The sizes are different with each other. But we resized them into fixed sizes like 64 x 64 or 128 x 128. 
 
@@ -183,9 +166,67 @@ We choosed 1 x 10^-4.
 	The second is the **size of images** we feed to the network. We tried 64*64 and 128 * 128. It turns out that the bigger images, the better accuracy we could get. However the exchange is running time. 
 	
 	And then is the **layers and their shapes**. However actually there are too many parameters can be adjusted so it's a very hard work to find the best values for all of them. 
-	According to many resources from internet, we learnt that the parameter choosing for building the network is pretty much rely on experience. And it' always good to maintain a gradient between each layers. So we just used parameters for layers that are commanly used in some related topics found online. And we did try to adjust it, but we didn't get obvious improvement.
 	
-	As a result, we roughly achieved 65% accuracy after 10000 iterations, and the running time is over an hour. 
+	According to many resources from internet, we learnt that the **parameters choosing** for building the network is pretty much rely on **experience**. 
+	
+	At first we try to built a relatively complicated network. The parameters are showed below:
+	
+		# Convolutional Layer 1.
+		filter_size1 = 5 
+		num_filters1 = 64
+		
+		# Convolutional Layer 2.
+		filter_size2 = 5
+		num_filters2 = 64
+		
+		# Convolutional Layer 3.
+		filter_size3 = 5
+		num_filters3 = 128 
+		
+		# Fully-connected layer 1.
+		fc1_size = 256
+		
+		# Fully-connected layer 2.
+		fc1_size = 256
+		
+	We used 3 Convolutional Layers and 2 Fully-connected layers, all of them are relatively complicated. 
+	
+	
+	However, the result is -- **Overfitting**. Only after a thousand iteration, our program get 100% training accuracy and only 30 % test accuracy.	
+	At first I'm pretty confused about why we got overfitting, and I tried to adjust parameters randomly, and things never getting better. Several days later, I happened to read a article by Google talking about a deep learning project conducted by Chinese researchers. [Link](https://medium.com/@blaisea/physiognomys-new-clothes-f2d4b59fdd6a) .  They pointed out that the research conducted by them is problematic. "**One technical problem is that fewer than 2000 examples are insufficient to train and test a CNN like AlexNet without overfitting**." So I realized that, first our dataset is actually small, second, our network is too complicated. 
+	
+	Then I tried to reduce the number layers and sizes of kernels. I tried many parameters, this is the final structure we used. 
+	
+		# Convolutional Layer 1.
+		filter_size1 = 5 
+		num_filters1 = 64
+		
+		# Convolutional Layer 2.
+		filter_size2 = 3
+		num_filters2 = 64
+		
+		# Fully-connected layer 1.
+		fc1_size = 128             # Number of neurons in fully-connected layer.
+		
+		# Fully-connected layer 2.
+		fc2_size = 128             # Number of neurons in fully-connected layer.
+		
+		# Number of color channels for the images: 1 channel for gray-scale.
+		num_channels = 3
+		
+	We only used **2 Convolutional Layers** with small shapes and 2 Fully-connected layers. 
+	The result was not that good, we **still get overfitting** after 4000 iterations,  however the **test result was 10 % better** than before.
+	
+	We're still find a way to deal with it, however the **obvious reason is that our dataset is insufficient**, and we don't have enough time to make more imporvment. 
+	
+	As a result, we roughly **achieved 43% accuracy after 5000 iterations**, and the running time is **over half an hour**. 
+	
+	**PS**: Actually we feel a little bit upset due to this result, we even didn't gain a sense of how long will a images training process be . So we found another standstand dataset called **CIFAR-10**.  [Link](https://www.cs.toronto.edu/~kriz/cifar.html). 
+	
+	![](10.png)
+	The CIFAR-10 dataset consists of 60000 32x32 colour images in 10 classes, with 6000 images per class. There are 50000 training images and 10000 test images. 
+	
+	We used the same network constructed above, after 10 hours training, we got 78 % accuracy on test set. 
 
 - **The third method**: **Retrain Inception V3**
 	Same here, we randomly select a few images to train and select another batch a images for validation.  
@@ -197,7 +238,6 @@ We choosed 1 x 10^-4.
 	The --**learning rate** controls the magnitude of the updates to the final layer during training. Intuitively if this is smaller then the learning will take longer, but it can end up helping the overall precision. The --**train batch **size controls how many images are examined during one training step, and because the learning rate is applied per batch we'll need to reduce it if you have larger batches to get the same overall effect.
 	
 	Since for deep learning task, the running time is usually pretty long, we won't hope to know our model is actually bad after hours of training. So we **report validation accuracy frequently**. By this way we can also avoid **overfitting**. The split is putting 80% of the images into the main training set, keeping 10% aside to run as validation frequently during training, and then have a final 10% that are used less often as a testing set to predict the real-world performance of the classifier.
-
 
 
 ## Result 
@@ -219,6 +259,13 @@ We choosed 1 x 10^-4.
 
 	Based on the results, we found that in order to improve the accuracy, its necessary to use some deep learning method.
 	
+- **The second method**:  **Built CNN with TensorFlow**
+	As we said above, we could not get a good result due to overfitting. 
+	
+	![](11.png)
+	
+	It normaly takes half an hour to train, however since the result is overfitting, we think this running time is not valuable. 
+
 	
 - **The third method**: **Retrain Inception V3**
 
@@ -231,4 +278,19 @@ We choosed 1 x 10^-4.
 	 
 ## Conclusion
 
+Based the comparison above, we can see that: 
 
+- The methods we learnt in class is not enough for some specific task like image classification. 
+- Although we got overfitting in CNN part, it's still better than those methods  learnt in class on image classification problem. 
+- Transfer Learning is pretty efficient and powerful on image classification problem. It's accurate and fast enough to finish training in a short time without GPU. And it also does a good job to against overfitting even though you have a small dataset. 
+
+
+We learnt some very important experience for image classification task. This kind of task is pretty different from other tasks we did in class. The dataset is relatively large and not sparse, the network are complicated, so the running time would be pretty long if we don't use GPU. 
+
+- Crop or resize images to make them smaller. 
+- Randomly choosing a small batch for training every iternation. 
+- Randomly choosing a small batch in validation set for validation, report validation score frequently during training process.
+- Try using Image Augmentation to convert a set of input images into a new, much larger set of slightly altered images.
+- For image classification task, we need larger dataset than 200 x 10, the CIFAR10 dataset contains 60000 images. 
+- More complicated network needs more dataset to train. 
+- All the experience mentioned above are to avoid overfitting!!
