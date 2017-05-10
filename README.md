@@ -20,7 +20,7 @@ So we would like to compare the performance among the algorithms we learnt in cl
 	
 Our Objective is to: 
 	
-1. Compare normal algorithms we learnt in class with 2 other methods that are usually used in industry on image classification problem, which are CNN and Transfer Learning. 
+1. Compare normal algorithms we learnt in class with 2 methods that are usually used in industry on image classification problem, which are CNN and Transfer Learning. 
 2. Gain experience on deep learning. 
 3. Explore the machine learning framework by Google - TensorFlow. 
 
@@ -70,7 +70,9 @@ The entire purpose of TensorFlow is to let you build a computational graph (usin
 
 	A CNN architecture is formed by a stack of distinct layers that transform the input volume into an output volume (e.g. holding the class scores) through a differentiable function. 
 	
-	So in our implementation,  at first we built **3 Convolutional layers** with **2 x 2 max-pooling and Rectified Linear Unit (ReLU)**. 
+	![](12.png)
+	
+	So in our implementation,  the first layer is to hold the images, then we built **3 Convolutional layers** with **2 x 2 max-pooling and Rectified Linear Unit (ReLU)**. 
 	The input is a 4-dim tensor with the following dimensions:
 	
 	- Image number.
@@ -92,8 +94,9 @@ The entire purpose of TensorFlow is to let you build a computational graph (usin
 	However to connect Convolutional layers and Fully-Connected Layers we need a **Flatten Layer** to reduce the 4-dim tensor to 2-dim which can be used as input to the fully-connected layer. 
 	
 	The very end of CNN is always a **softmax layer** which normalize the output from Fully-connected layer so that each element is limited between 0 and 1 and all the elements sum to 1.
+	![](14.png)
 	
-	To **optimize** the traning result we need a cost mearsure and try to minmize it every iternation. 
+	To **optimize** the training result we need a cost measure and try to minimize it every iteration. 
 	The **Cost function**  we used here is **cross entropy** (called from tf.nn.oftmax_cross_entropy_with_logits()), and take the average of cross-entropy for all the image classifications. 
 	The **Optimization Method** is tf.train.AdamOptimizer() which is an advanced form of **Gradient Descent.** The is a parameter **learning rate** which could be adjusted. 
 	
@@ -101,7 +104,7 @@ The entire purpose of TensorFlow is to let you build a computational graph (usin
 	Modern object recognition models have millions of parameters and can take weeks to fully train. Transfer learning is a technique that shortcuts a lot of this work by taking a fully-trained model for a set of categories like ImageNet, and retrains from the existing weights for new classes. Though it's not as good as a full training run, this is surprisingly effective for many applications, and can be run in as little as thirty minutes on a laptop, without requiring a GPU. 
 	For this part of implementation, we followed the instruction here: [link](https://www.tensorflow.org/tutorials/image_retraining). 
 	
-	First we need to get the pretrained model, remove the old top layer, and trains a new one on the dataset we have. None of the cat breeds were in the original ImageNet classes the full network was trained on. The magic of transfer learning is that lower layers that have been trained to distinguish between some objects can be reused for many recognition tasks without any alteration.
+	First we need to get the pre-trained model, remove the old top layer, and trains a new one on the dataset we have. None of the cat breeds were in the original ImageNet classes the full network was trained on. The magic of transfer learning is that lower layers that have been trained to distinguish between some objects can be reused for many recognition tasks without any alteration.
 	Then we analyzes all the images on disk and calculates the bottleneck values for each of them. See details about 'bottleneck' here: [link](https://www.tensorflow.org/tutorials/image_retraining). Because every image is reused multiple times during training and calculating each bottleneck takes a significant amount of time, it speeds things up to cache these bottleneck values on disk so they don't have to be repeatedly recalculated.
 	
 	The script will run 4,000 training steps. Each step chooses ten images at random from the training set, finds their bottlenecks from the cache, and feeds them into the final layer to get predictions. Those predictions are then compared against the actual labels to update the final layer's weights through the back-propagation process.
@@ -126,7 +129,7 @@ The sizes are different with each other. But we resized them into fixed sizes li
 
 ### Preprocessing
 
-In this project we mainly used OpenCV for precessing the image data like read the image into arrary and reshape into the size we need. 
+In this project we mainly used OpenCV for precessing the image data like read the image into array and reshape into the size we need. 
 
 A common way of improving the results of image training is by deforming, cropping, or brightening the training inputs in random ways. This has the advantage of expanding the effective size of the training data thanks to all the possible variations of the same images, and tends to help the network learn to cope with all the distortions that will occur in real-life uses of the classifier. 
 
@@ -135,12 +138,12 @@ A common way of improving the results of image training is by deforming, croppin
 
 See links here: [https://github.com/aleju/imgaug](https://github.com/aleju/imgaug). 
 
-### Evalutaion
+### Evaluation
 - **The first method:** 
 	The first part: Preprocess dataset and apply KNN, SVM and BP Neural Network with sklearn.
 	
 	In the program, there are many parameters could be adjusted:
-In image_to_featrue_vector function, we set the size we desired is 128x128, we do have tried other size before like 8x8, 64x64, 256x256. We found that the bigger image size, the better the accuracy. But large image size also increase the execution time and memory it consumed. So we finally decided the image size to be 128x128 because its not too big but can also ensure the accuracy.
+In image_to_feature_vector function, we set the size we desired is 128x128, we do have tried other size before like 8x8, 64x64, 256x256. We found that the bigger image size, the better the accuracy. But large image size also increase the execution time and memory it consumed. So we finally decided the image size to be 128x128 because its not too big but can also ensure the accuracy.
 
 	In extract_color_histogram function, we set the number of bins per channel to 32, 32, 32. As the previous function, we tried 8, 8, 8, and 64, 64, 64, and higher number can result to higher result, as well as higher execution time. So we think 32, 32, 32 is appropriate.
 	
@@ -148,20 +151,21 @@ In image_to_featrue_vector function, we set the size we desired is 128x128, we d
 	
 	In **KNeighborsClassifier**, we only changed the number of neighbors and stored the result for the best K for each dataset. All the other parameters we set as default.
 	
-	In **MLPClassifier**, we set one hidden layer with 50 neurons. We do have tested multiple hidden layers, but it seems has no significant change in the final result. And the maximum iteration time is 1000, with tolerance 1e-4, in order to make sure it converged. And set L2 panalty parameter alpha to default value, random state to 1, solver to ‘sgd’ with learning rate 0.1.
-In SVC, maximum iteration time is 1000, and class weight is ‘balanced’.
+	In **MLPClassifier**, we set one hidden layer with 50 neurons. We do have tested multiple hidden layers, but it seems has no significant change in the final result. And the maximum iteration time is 1000, with tolerance 1e-4, in order to make sure it converged. And set L2 penalty parameter alpha to default value, random state to 1, solver to ‘sgd’ with learning rate 0.1. 
+	
+	In **SVC**, maximum iteration time is 1000, and class weight is ‘balanced’.
  
 	The **running time** for our program is not very long, it takes about 3 to 5 minutes from 2 labels dataset to 10 labels dataset.
 	
 - **The second method**:  **Built CNN with TensorFlow**
 
-	It takes a long time to calculate the gradient of the model using the entirety of a large dataset . We therefore only use a small batch of images in each iteration of the optimizer. The batch size is normaly 32 or 64. 
+	It takes a long time to calculate the gradient of the model using the entirety of a large dataset . We therefore only use a small batch of images in each iteration of the optimizer. The batch size is normally 32 or 64. 
 	The dataset is divided into training set contains 1600 images, validation set contains 400 images, and test set contains 300 images.  
 	
 	There are many **parameters** could be adjusted. 
 	
 	First is the **learning rate**. A good learning rate is easy find as long as it's small enough that could converge and big enough that it won't make the program too slow. 
-We choosed 1 x 10^-4.
+We chose 1 x 10^-4.
 	
 	The second is the **size of images** we feed to the network. We tried 64*64 and 128 * 128. It turns out that the bigger images, the better accuracy we could get. However the exchange is running time. 
 	
@@ -215,16 +219,16 @@ We choosed 1 x 10^-4.
 		num_channels = 3
 		
 	We only used **2 Convolutional Layers** with small shapes and 2 Fully-connected layers. 
-	The result was not that good, we **still get overfitting** after 4000 iterations,  however the **test result was 10 % better** than before.
+	The result was not that good, we **still get overfitting** after 4000 iterations,  however the **test result was 10% better** than before.
 	
-	We're still find a way to deal with it, however the **obvious reason is that our dataset is insufficient**, and we don't have enough time to make more imporvment. 
+	We're still find a way to deal with it, however the **obvious reason is that our dataset is insufficient**, and we don't have enough time to make more improvement. 
 	
 	As a result, we roughly **achieved 43% accuracy after 5000 iterations**, and the running time is **over half an hour**. 
 	
-	**PS**: Actually we feel a little bit upset due to this result, we even didn't gain a sense of how long will a images training process be . So we found another standstand dataset called **CIFAR-10**.  [Link](https://www.cs.toronto.edu/~kriz/cifar.html). 
+	**PS**: Actually we feel a little bit upset due to this result, we even didn't gain a sense of how long will a images training process be . So we found another standard dataset called **CIFAR-10**.  [Link](https://www.cs.toronto.edu/~kriz/cifar.html). 
 	
-	![](10.png)
-	The CIFAR-10 dataset consists of 60000 32x32 colour images in 10 classes, with 6000 images per class. There are 50000 training images and 10000 test images. 
+	![](13.png)
+	The CIFAR-10 dataset consists of 60000 32x32 color images in 10 classes, with 6000 images per class. There are 50000 training images and 10000 test images. 
 	
 	We used the same network constructed above, after 10 hours training, we got 78 % accuracy on test set. 
 
@@ -233,7 +237,7 @@ We choosed 1 x 10^-4.
 	
 	There are many parameters could be adjusted.
 	
-	First is **training steps**, the defalut is 4000, we can try more or try a smaller one if we could get a reasonable result earlier. 
+	First is **training steps**, the default is 4000, we can try more or try a smaller one if we could get a reasonable result earlier. 
 	
 	The --**learning rate** controls the magnitude of the updates to the final layer during training. Intuitively if this is smaller then the learning will take longer, but it can end up helping the overall precision. The --**train batch **size controls how many images are examined during one training step, and because the learning rate is applied per batch we'll need to reduce it if you have larger batches to get the same overall effect.
 	
@@ -264,7 +268,8 @@ We choosed 1 x 10^-4.
 	
 	![](11.png)
 	
-	It normaly takes half an hour to train, however since the result is overfitting, we think this running time is not valuable. 
+	It normally takes half an hour to train, however since the result is overfitting, we think this running time is not valuable. 
+	After comparing with method 1 we can see that: although the CNN overfit the training data, we still get better result than method 1.  
 
 	
 - **The third method**: **Retrain Inception V3**
@@ -288,9 +293,20 @@ Based the comparison above, we can see that:
 We learnt some very important experience for image classification task. This kind of task is pretty different from other tasks we did in class. The dataset is relatively large and not sparse, the network are complicated, so the running time would be pretty long if we don't use GPU. 
 
 - Crop or resize images to make them smaller. 
-- Randomly choosing a small batch for training every iternation. 
+- Randomly choosing a small batch for training every iteration. 
 - Randomly choosing a small batch in validation set for validation, report validation score frequently during training process.
 - Try using Image Augmentation to convert a set of input images into a new, much larger set of slightly altered images.
 - For image classification task, we need larger dataset than 200 x 10, the CIFAR10 dataset contains 60000 images. 
 - More complicated network needs more dataset to train. 
-- All the experience mentioned above are to avoid overfitting!!
+- Be careful of overfitting. 
+
+
+## References 
+
+1. [CS231n Convolutional Neural Networks for Visual Recognition](http://cs231n.github.io/convolutional-networks/)
+2. [TensorFlow Convolutional Neural Networks](https://www.tensorflow.org/tutorials/deep_cnn)
+3. [How to Retrain Inception's Final Layer for New Categories](https://www.tensorflow.org/tutorials/image_retraining)
+3. [k-NN classifier for image classification](http://www.pyimagesearch.com/2016/08/08/k-nn-classifier-for-image-classification/)
+
+
+
