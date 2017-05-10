@@ -221,7 +221,7 @@ We chose 1 x 10^-4.
 	We only used **2 Convolutional Layers** with small shapes and 2 Fully-connected layers. 
 	The result was not that good, we **still get overfitting** after 4000 iterations,  however the **test result was 10% better** than before.
 	
-	We're still find a way to deal with it, however the **obvious reason is that our dataset is insufficient**, and we don't have enough time to make more improvement. 
+	We're still finding a way to deal with it, however the **obvious reason is that our dataset is insufficient**, and we don't have enough time to make more improvement. 
 	
 	As a result, we roughly **achieved 43% accuracy after 5000 iterations**, and the running time is **over half an hour**. 
 	
@@ -269,7 +269,7 @@ We chose 1 x 10^-4.
 	![](11.png)
 	
 	It normally takes half an hour to train, however since the result is overfitting, we think this running time is not valuable. 
-	After comparing with method 1 we can see that: although the CNN overfit the training data, we still get better result than method 1.  
+	After comparing with method 1 we can see that: although the CNN overfits the training data, we still get better result than method 1.  
 
 	
 - **The third method**: **Retrain Inception V3**
@@ -285,7 +285,7 @@ We chose 1 x 10^-4.
 
 Based the comparison above, we can see that: 
 
-- The methods we learnt in class is not enough for some specific task like image classification. 
+- The methods we learnt in class are not enough for some specific task like image classification. 
 - Although we got overfitting in CNN part, it's still better than those methods  learnt in class on image classification problem. 
 - Transfer Learning is pretty efficient and powerful on image classification problem. It's accurate and fast enough to finish training in a short time without GPU. And it also does a good job to against overfitting even though you have a small dataset. 
 
@@ -307,6 +307,7 @@ We learnt some very important experience for image classification task. This kin
 2. [TensorFlow Convolutional Neural Networks](https://www.tensorflow.org/tutorials/deep_cnn)
 3. [How to Retrain Inception's Final Layer for New Categories](https://www.tensorflow.org/tutorials/image_retraining)
 3. [k-NN classifier for image classification](http://www.pyimagesearch.com/2016/08/08/k-nn-classifier-for-image-classification/)
-
+4. [Image Augmentation for Deep Learning With Keras](http://machinelearningmastery.com/image-augmentation-deep-learning-keras/)
+5. [Convolutional Neural Network TensorFlow Tutorial](https://github.com/Hvass-Labs/TensorFlow-Tutorials/blob/master/02_Convolutional_Neural_Network.ipynb)
 
 
